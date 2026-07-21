@@ -35,9 +35,7 @@ RUN mkdir -p /home/$USER/ros_ws/src
 WORKDIR /home/$USER/ros_ws/src
 RUN git clone https://github.com/b-robotized/ads_vendor.git
 RUN git clone https://github.com/b-robotized/beckhoff_ads_driver.git
-
-# RUN git clone https://github.com/orka375/Masterproject2.git
-
+RUN git clone https://github.com/orka375/tc_ros2_itf.git
 
 # RUN rosdep update
 RUN git clone https://github.com/b-robotized/open62541pp_vendor.git
@@ -68,6 +66,10 @@ RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> 
 RUN echo "export ROS_DOMAIN_ID=1" >> /home/$USER/.bashrc
 RUN echo "export QT_X11_NO_MITSHM=1" >> /home/$USER/.bashrc
 RUN echo "export IGN_IP=127.0.0.1" >> /home/$USER/.bashrc
+RUN echo "cd /home/$USER/ros_ws/src/tc_ros2_itf" >> /home/$USER/.bashrc
+RUN echo "git pull" >> /home/$USER/.bashrc
+RUN echo "cd .." >> /home/$USER/.bashrc
+RUN echo "cd .." >> /home/$USER/.bashrc
 
 #########################
 # Pip installation setup
