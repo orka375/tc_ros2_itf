@@ -47,7 +47,7 @@ WORKDIR /home/$USER/ros_ws/
 
 
 ####################### Update
-# RUN sudo apt upgrade -y && sudo apt update
+RUN sudo apt upgrade -y && sudo apt update
 
 
 

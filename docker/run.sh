@@ -2,7 +2,7 @@
 
 set -e
 
-IMAGE_NAME=${1:-orka375/eta_tc_ros2_itf}
+IMAGE_NAME=${1:-eta_tc_ros2_itf}
 CONTAINER_NAME=${2:-eta_tc_ros2_itf_container}
 
 echo "Starting Docker container..."
@@ -12,7 +12,7 @@ echo "Container: $CONTAINER_NAME"
 # Repository root (folder above docker/)
 REPOSITORY_FOLDER_PATH="$(cd "$(dirname "$0")/.." && pwd)"
 
-USER_NAME=$(whoami)
+USER_NAME="admin"
 
 WORKSPACE=/home/$USER_NAME/ros_ws
 
