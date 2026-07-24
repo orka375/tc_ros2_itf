@@ -44,6 +44,11 @@ RUN sudo apt-get update && sudo apt-get upgrade -y
 ######################
 # 5) Gits and Sources
 ######################
+RUN git config --global credential.helper store 
+RUN git config --global user.email "admin@docker"
+RUN git config --global user.name "admin"
+
+
 RUN mkdir -p /home/$USER/ros_ws/src /home/$USER/ros_ws/build /home/$USER/ros_ws/install
 WORKDIR /home/$USER/ros_ws/src
 RUN git clone https://github.com/b-robotized/ads_vendor.git
@@ -53,6 +58,7 @@ RUN git clone https://github.com/b-robotized/open62541pp_vendor.git
 RUN git clone https://github.com/b-robotized/ros2_opc_ua.git
 
 WORKDIR /home/$USER/ros_ws
+RUN rosdep install --from-paths src --ignore-src -r -y
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 ######################

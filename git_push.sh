@@ -2,16 +2,23 @@
 
 set -e
 
-# Check commit message
+# Use default commit message if none is provided
 if [ -z "$1" ]; then
-    echo "Usage: $0 \"commit message\""
-    exit 1
+    COMMIT_MSG="Automatic update"
+else
+    COMMIT_MSG="$1"
 fi
 
-COMMIT_MSG="$1"
+echo "Commit message: $COMMIT_MSG"
 
 echo "Adding files..."
 git add .
+
+# Check if there are changes to commit
+if git diff --cached --quiet; then
+    echo "No changes to commit."
+    exit 0
+fi
 
 echo "Committing..."
 git commit -m "$COMMIT_MSG"
