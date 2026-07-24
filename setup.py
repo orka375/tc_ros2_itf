@@ -21,6 +21,7 @@ setup(
 
     entry_points={
         'console_scripts': [
+            'db_interface_node = nodes.RobotDataBase:main',
         ],
     },
 )

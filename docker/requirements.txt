@@ -18,6 +18,7 @@ nano
 openssh-server
 python3
 python3-pip
+python3-psycopg2
 python3-setuptools
 ros-kilted-ros2-control
 ros-kilted-ros2-controllers

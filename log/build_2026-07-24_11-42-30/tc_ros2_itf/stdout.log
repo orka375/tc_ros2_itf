@@ -1,0 +1,20 @@
+running develop
+running egg_info
+creating tc_ros2_itf.egg-info
+writing tc_ros2_itf.egg-info/PKG-INFO
+writing dependency_links to tc_ros2_itf.egg-info/dependency_links.txt
+writing requirements to tc_ros2_itf.egg-info/requires.txt
+writing top-level names to tc_ros2_itf.egg-info/top_level.txt
+writing manifest file 'tc_ros2_itf.egg-info/SOURCES.txt'
+reading manifest file 'tc_ros2_itf.egg-info/SOURCES.txt'
+writing manifest file 'tc_ros2_itf.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/administrator/Masterproject2/20_ROS/src/Interface/install/tc_ros2_itf/lib/python3.12/site-packages/tc-ros2-itf.egg-link (link to .)
+
+Installed /home/administrator/Masterproject2/20_ROS/src/Interface/build/tc_ros2_itf
+running symlink_data
+creating /home/administrator/Masterproject2/20_ROS/src/Interface/install/tc_ros2_itf/share/ament_index
+creating /home/administrator/Masterproject2/20_ROS/src/Interface/install/tc_ros2_itf/share/ament_index/resource_index
+creating /home/administrator/Masterproject2/20_ROS/src/Interface/install/tc_ros2_itf/share/ament_index/resource_index/packages
+symbolically linking /home/administrator/Masterproject2/20_ROS/src/Interface/build/tc_ros2_itf/resource/tc_ros2_itf -> /home/administrator/Masterproject2/20_ROS/src/Interface/install/tc_ros2_itf/share/ament_index/resource_index/packages
+symbolically linking /home/administrator/Masterproject2/20_ROS/src/Interface/build/tc_ros2_itf/package.xml -> /home/administrator/Masterproject2/20_ROS/src/Interface/install/tc_ros2_itf/share/tc_ros2_itf
