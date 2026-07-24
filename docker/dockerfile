@@ -76,6 +76,8 @@ RUN echo "cd .." >> /home/$USER/.bashrc
 #########################
 RUN sudo pip install nudged \
     transforms3d \
+    psycopg2 \
+    pyqt5 \
     --break-system-packages
 
 

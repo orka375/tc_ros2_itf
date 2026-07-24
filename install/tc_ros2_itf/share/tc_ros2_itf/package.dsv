@@ -1,9 +1,0 @@
-source;share/tc_ros2_itf/hook/pythonpath.ps1
-source;share/tc_ros2_itf/hook/pythonpath.dsv
-source;share/tc_ros2_itf/hook/pythonpath.sh
-source;share/tc_ros2_itf/hook/ament_prefix_path.ps1
-source;share/tc_ros2_itf/hook/ament_prefix_path.dsv
-source;share/tc_ros2_itf/hook/ament_prefix_path.sh
-source;../../build/tc_ros2_itf/share/tc_ros2_itf/hook/pythonpath_develop.ps1
-source;../../build/tc_ros2_itf/share/tc_ros2_itf/hook/pythonpath_develop.dsv
-source;../../build/tc_ros2_itf/share/tc_ros2_itf/hook/pythonpath_develop.sh

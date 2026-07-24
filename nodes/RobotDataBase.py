@@ -101,7 +101,7 @@ class RobotDatabase(Node):
     def __init__(self) -> None:
         super().__init__("robot_database")
 
-        self.declare_parameter("db_host", "robotdata")
+        self.declare_parameter("db_host", "localhost")
         self.declare_parameter("db_port", 5432)
         self.declare_parameter("db_name", "robotdata")
         self.declare_parameter("db_user", "admin")
@@ -153,6 +153,7 @@ class RobotDatabase(Node):
             f"Connected to PostgreSQL database {db_name} at {db_host}:{db_port} as {db_user}."
         )
         self.get_logger().info("Ready: topics read/edit request+response and services get_* + db_command")
+        self.print_usage_examples()
 
     def destroy_node(self) -> bool:
         try:
@@ -408,6 +409,94 @@ class RobotDatabase(Node):
         response.results = [result]
         return response
 
+    def print_usage_examples(self) -> None:
+        examples = """
+    ================ Robot Database Interface ================
+
+    ----------------------------------------------------------
+    READ ROBOTS
+    ----------------------------------------------------------
+
+    ros2 topic pub --once /robot_database/read_request std_msgs/msg/String \\
+    '{data: "{\"entity\":\"robots\"}'
+
+    Read robot by id:
+
+    ros2 topic pub --once /robot_database/read_request std_msgs/msg/String \\
+    '{data: "{\"entity\":\"robots\",\"id\":1}'
+
+    Read robot by name:
+
+    ros2 topic pub --once /robot_database/read_request std_msgs/msg/String \\
+    '{data: "{\"entity\":\"robots\",\"filters\":{\"name\":\"robot1\"}}'
+
+
+    ----------------------------------------------------------
+    READ TOOLS
+    ----------------------------------------------------------
+
+    ros2 topic pub --once /robot_database/read_request std_msgs/msg/String \\
+    '{data: "{\"entity\":\"tools\"}'
+
+
+    Read tools belonging to robot:
+
+    ros2 topic pub --once /robot_database/read_request std_msgs/msg/String \\
+    '{data: "{\"entity\":\"tools\",\"filters\":{\"robot_id\":1}}'
+
+
+    ----------------------------------------------------------
+    INSERT ROBOT
+    ----------------------------------------------------------
+
+    ros2 topic pub --once /robot_database/edit_request std_msgs/msg/String \\
+    '{data: "{\"entity\":\"robots\",\"action\":\"insert\",\"data\":{\"name\":\"robot1\",\"manufacturer\":\"KUKA\",\"model\":\"KR10\"}}'
+
+
+    ----------------------------------------------------------
+    UPDATE ROBOT
+    ----------------------------------------------------------
+
+    ros2 topic pub --once /robot_database/edit_request std_msgs/msg/String \\
+    '{data: "{\"entity\":\"robots\",\"action\":\"update\",\"id\":1,\"data\":{\"name\":\"new_robot_name\"}}'
+
+
+    ----------------------------------------------------------
+    DELETE ROBOT
+    ----------------------------------------------------------
+
+    ros2 topic pub --once /robot_database/edit_request std_msgs/msg/String \\
+    '{data: "{\"entity\":\"robots\",\"action\":\"delete\",\"id\":1}'
+
+
+    ----------------------------------------------------------
+    SERVICE EXAMPLES
+    ----------------------------------------------------------
+
+    Get all robots:
+
+    ros2 service call /robot_database/get_robots std_srvs/srv/Trigger
+
+
+    Get all tools:
+
+    ros2 service call /robot_database/get_tools std_srvs/srv/Trigger
+
+
+    Get all frames:
+
+    ros2 service call /robot_database/get_frames std_srvs/srv/Trigger
+
+
+    Get all plants:
+
+    ros2 service call /robot_database/get_plants std_srvs/srv/Trigger
+
+
+    ==========================================================
+
+    """
+        self.get_logger().info(examples)
 
 def main() -> None:
     rclpy.init()
