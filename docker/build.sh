@@ -1,71 +1,78 @@
 #!/bin/bash
 
-# BSD 3-Clause License
-#
-# Copyright (c) 2024, Ekumen Inc.
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-#    list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-#    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 set -e
 
-# Prints information about usage.
-function show_help() {
-  echo $'\nUsage:\t build.sh [OPTIONS] \n
-  Options:\n
-  \t-i --image_name\t\t Name of the image to be built (default eta_tc_ros2_itf).\n
-  Example:\n
-  \tbuild.sh --image_name custom_image_name\n'
+######################
+# 1) Help
+######################
+show_help() {
+  echo $'\nUsage:\tbuild.sh [OPTIONS]\n
+Options:\n
+	-i, --image-name\tDocker image name (default: ros2_<ros_distro>_eta_interface)\n
+	-d, --ros-distro\tROS 2 distro (default: kilted)\n
+	-h, --help\t\tShow this help message\n
+Example:\n
+	build.sh --ros-distro kilted --image-name custom_image\n'
 }
 
-echo "Building the docker image for ros2 kilted eta gazebo development."
-
+######################
+# 2) Paths
+######################
 SCRIPT_FOLDER_PATH="$(cd "$(dirname "$0")"; pwd)"
-CONTEXT_FOLDER_PATH="$(cd "$(dirname "$0")"; cd .. ; pwd)"
+CONTEXT_FOLDER_PATH="$(cd "$SCRIPT_FOLDER_PATH/.."; pwd)"
+DOCKERFILE_PATH="$SCRIPT_FOLDER_PATH/dockerfile"
 
-# Parse arguments
+if [[ ! -f "$DOCKERFILE_PATH" ]]; then
+  DOCKERFILE_PATH="$SCRIPT_FOLDER_PATH/Dockerfile"
+fi
+
+if [[ ! -f "$DOCKERFILE_PATH" ]]; then
+  echo "Dockerfile not found in $SCRIPT_FOLDER_PATH"
+  exit 1
+fi
+
+######################
+# 3) Parse Arguments
+######################
 while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -i|--image_name) IMAGE_NAME="${2}"; shift ;;
-        -h|--help) show_help ; exit 1 ;;
-        *) echo "Unknown parameter passed: $1"; exit 1 ;;
-    esac
-    shift
+  case "$1" in
+    -i|--image-name|--image_name)
+      IMAGE_NAME="$2"
+      shift
+      ;;
+    -d|--ros-distro|--ros_distro)
+      ROS_DISTRO="$2"
+      shift
+      ;;
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    *)
+      echo "Unknown parameter: $1"
+      show_help
+      exit 1
+      ;;
+  esac
+  shift
 done
 
-# Update the arguments to default values if needed.
-OS_VERSION="focal"
-IMAGE_NAME="${IMAGE_NAME:-eta_tc_ros2_itf}"
-DOCKERFILE_PATH="$SCRIPT_FOLDER_PATH/Dockerfile"
+######################
+# 4) Defaults
+######################
+ROS_DISTRO="${ROS_DISTRO:-kilted}"
+IMAGE_NAME="${IMAGE_NAME:-ros2_${ROS_DISTRO}_eta_interface}"
+USERID="1000"
+USER="admin"
 
-USERID=$(id -u)
-USER=$(whoami)
-
-sudo docker build -t "$IMAGE_NAME" \
+######################
+# 5) Build
+######################
+echo "Building image '${IMAGE_NAME}' for ROS 2 distro '${ROS_DISTRO}'"
+sudo docker build \
   --file "$DOCKERFILE_PATH" \
   --build-arg "USERID=$USERID" \
   --build-arg "USER=$USER" \
+  --build-arg "ROS_DISTRO=$ROS_DISTRO" \
+  --tag "$IMAGE_NAME" \
   "$CONTEXT_FOLDER_PATH"
