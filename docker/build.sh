@@ -22,14 +22,6 @@ SCRIPT_FOLDER_PATH="$(cd "$(dirname "$0")"; pwd)"
 CONTEXT_FOLDER_PATH="$(cd "$SCRIPT_FOLDER_PATH/.."; pwd)"
 DOCKERFILE_PATH="$SCRIPT_FOLDER_PATH/dockerfile"
 
-if [[ ! -f "$DOCKERFILE_PATH" ]]; then
-  DOCKERFILE_PATH="$SCRIPT_FOLDER_PATH/Dockerfile"
-fi
-
-if [[ ! -f "$DOCKERFILE_PATH" ]]; then
-  echo "Dockerfile not found in $SCRIPT_FOLDER_PATH"
-  exit 1
-fi
 
 ######################
 # 3) Parse Arguments

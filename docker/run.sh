@@ -28,13 +28,16 @@ echo "Running the container..."
 # -----------------------
 
 USER="admin"
-REPOSITORY_FOLDER_PATH="$(cd "$(dirname "$0")"; cd ../../..; pwd)"
+REPOSITORY_FOLDER_PATH="$(cd "$(dirname "$0")"; cd ../..; pwd)"
+WORKSPACE_SRC_HOST_PATH="$(cd "$(dirname "$0")"; cd ../../..; pwd)/src"
 ROS_DISTRO=${ROS_DISTRO:-kilted}
 IMAGE_NAME=${IMAGE_NAME:-ros2_${ROS_DISTRO}_eta_interface}
 CONTAINER_NAME=${CONTAINER_NAME:-ros2_${ROS_DISTRO}_eta_interface_container}
 
 
 WORKSPACE_ROOT_CONTAINER="/home/$USER/ros_ws"
+WORKSPACE_BIND_SOURCE="$WORKSPACE_SRC_HOST_PATH"
+WORKSPACE_BIND_TARGET="$WORKSPACE_ROOT_CONTAINER/mount"
 
 ## -----------------------
 # Arguments
@@ -93,15 +96,7 @@ else
 fi
 
 
-# -----------------------
-# Build cache folders
-# -----------------------
 
-mkdir -p "${REPOSITORY_FOLDER_PATH}/build"
-mkdir -p "${REPOSITORY_FOLDER_PATH}/install"
-
-sudo chown -R "$(whoami)" "${REPOSITORY_FOLDER_PATH}/build"
-sudo chown -R "$(whoami)" "${REPOSITORY_FOLDER_PATH}/install"
 
 
 # -----------------------
@@ -109,14 +104,21 @@ sudo chown -R "$(whoami)" "${REPOSITORY_FOLDER_PATH}/install"
 # -----------------------
 
 if sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-    echo "Starting existing container..."
-    sudo docker start -ai "$CONTAINER_NAME"
+    if sudo docker inspect "$CONTAINER_NAME" --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}' | grep -qx "${WORKSPACE_BIND_SOURCE} -> ${WORKSPACE_BIND_TARGET}"; then
+        if sudo docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+            echo "Container '$CONTAINER_NAME' is already running."
+        else
+            echo "Starting existing container in detached mode..."
+            sudo docker start "$CONTAINER_NAME" >/dev/null
+        fi
 
-    if command -v xhost >/dev/null 2>&1; then
-        xhost -SI:localuser:$USER
+        exit 0
     fi
 
-    exit 0
+    echo "Existing container '$CONTAINER_NAME' does not have the expected workspace bind mount."
+    echo "Expected: '$WORKSPACE_BIND_SOURCE -> $WORKSPACE_BIND_TARGET'"
+    echo "Remove it and rerun this script so Docker can recreate it with the current source layout."
+    exit 1
 fi
 
 
@@ -129,6 +131,7 @@ echo "  Image:     $IMAGE_NAME"
 echo "  Container: $CONTAINER_NAME"
 echo "  ROS:       $ROS_DISTRO"
 echo "  DISPLAY:   $DISPLAY"
+echo "  Workspace: $WORKSPACE_BIND_SOURCE -> $WORKSPACE_BIND_TARGET"
 
 
 sudo docker run \
@@ -136,7 +139,7 @@ sudo docker run \
     --net=host \
     --ipc=host \
     --pid=host \
-    -it \
+    -d \
     $NVIDIA_FLAGS \
     \
     -e DISPLAY="$DISPLAY" \
@@ -146,33 +149,7 @@ sudo docker run \
     \
     -v "$XAUTH:/tmp/.docker.xauth:rw" \
     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-    \
-    -v "${REPOSITORY_FOLDER_PATH}:${WORKSPACE_ROOT_CONTAINER}" \
-    -v "${REPOSITORY_FOLDER_PATH}/build:${WORKSPACE_ROOT_CONTAINER}/build:rw" \
-    -v "${REPOSITORY_FOLDER_PATH}/install:${WORKSPACE_ROOT_CONTAINER}/install:rw" \
+    --mount type=bind,source="${WORKSPACE_BIND_SOURCE}",target="${WORKSPACE_BIND_TARGET}" \
     \
     --name "$CONTAINER_NAME" \
     "$IMAGE_NAME"
-
-
-# -----------------------
-# Cleanup
-# -----------------------
-
-function onexit() {
-
-    echo ""
-
-    read -p "Save container changes into image '$IMAGE_NAME'? [y/n]: " answer
-
-    if [[ "${answer:0:1}" =~ y|Y ]]; then
-        echo "Saving image..."
-        sudo docker commit "$CONTAINER_NAME" "$IMAGE_NAME"
-    fi
-
-    sudo docker stop "$CONTAINER_NAME" >/dev/null 2>&1
-
- 
-}
-
-trap onexit EXIT

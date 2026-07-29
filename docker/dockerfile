@@ -49,8 +49,9 @@ RUN git config --global user.email "admin@docker"
 RUN git config --global user.name "admin"
 
 
-RUN mkdir -p /home/$USER/ros_ws/src /home/$USER/ros_ws/build /home/$USER/ros_ws/install
+RUN mkdir -p /home/$USER/ros_ws/src /home/$USER/ros_ws/build /home/$USER/ros_ws/install /home/$USER/ros_ws/mount
 WORKDIR /home/$USER/ros_ws/src
+
 RUN git clone https://github.com/b-robotized/ads_vendor.git
 RUN git clone https://github.com/b-robotized/beckhoff_ads_driver.git
 RUN git clone https://github.com/orka375/tc_ros2_itf.git
@@ -58,12 +59,12 @@ RUN git clone https://github.com/b-robotized/open62541pp_vendor.git
 RUN git clone https://github.com/b-robotized/ros2_opc_ua.git
 
 WORKDIR /home/$USER/ros_ws
+RUN rosdep update
 RUN rosdep install --from-paths src --ignore-src -r -y
 RUN . /opt/ros/${ROS_DISTRO}/setup.sh && colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 
-RUN mkdir -p /home/$USER/ros_ws/src/Interface /home/$USER/ros_ws/build /home/$USER/ros_ws/install /home/$USER/ros_ws/log
 
-WORKDIR /home/$USER/ros_ws/src/Interface
+
 ######################
 # 6) Bashrc
 ######################
@@ -81,6 +82,7 @@ RUN sudo pip install nudged \
     transforms3d \
     psycopg2 \
     pyqt5 \
+    pyads \
     --break-system-packages
 
 ######################
